@@ -1,17 +1,81 @@
 ---
-
+import Layout from "../layouts/Layout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Espacio Digital">
+	<main class="flex flex-col min-h-screen bg-[#0a0a0a] text-[#e5e5e5]">
+		<section
+			class="flex-grow flex flex-col items-center justify-center p-4 text-center min-h-[50vh]"
+		>
+			<h1
+				class="text-4xl md:text-7xl font-bold tracking-tighter leading-tight mb-4"
+			>
+				DATA <span class="text-neutral-600">|</span> FINANCE <span
+					class="text-neutral-600">|</span
+				> CODE
+			</h1>
+			<p class="text-neutral-400 text-lg md:text-xl max-w-2xl font-light">
+				Explorando la intersección entre sistemas complejos, modelado
+				cuantitativo y desarrollo de software.
+			</p>
+		</section>
+
+		<section class="w-full max-w-7xl mx-auto px-4 py-12">
+			<div
+				class="flex items-baseline justify-between mb-8 border-b border-neutral-800 pb-2"
+			>
+				<h2 class="text-xl font-bold uppercase tracking-widest">
+					Proyectos Seleccionados
+				</h2>
+				<span class="text-xs text-neutral-500 font-mono">2026</span>
+			</div>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div
+					class="group border border-neutral-800 p-8 hover:bg-neutral-900 transition-all duration-300 cursor-pointer relative overflow-hidden"
+				>
+					<div
+						class="absolute top-0 left-0 w-1 h-full bg-neutral-800 group-hover:bg-white transition-colors duration-300"
+					>
+					</div>
+					<span class="text-xs font-mono text-neutral-500 mb-4 block"
+						>PYTHON / QUANT ANALYSIS</span
+					>
+					<h3 class="text-2xl font-bold mb-2 group-hover:text-white">
+						Simulación de Mercados
+					</h3>
+					<p class="text-sm text-neutral-400 leading-relaxed">
+						Implementación de algoritmos de backtesting para evaluar
+						estrategias financieras utilizando datos históricos
+						reales.
+					</p>
+				</div>
+
+				<div
+					class="group border border-neutral-800 p-8 hover:bg-neutral-900 transition-all duration-300 cursor-pointer relative overflow-hidden"
+				>
+					<div
+						class="absolute top-0 left-0 w-1 h-full bg-neutral-800 group-hover:bg-white transition-colors duration-300"
+					>
+					</div>
+					<span class="text-xs font-mono text-neutral-500 mb-4 block"
+						>COMPUTATIONAL BIOLOGY</span
+					>
+					<h3 class="text-2xl font-bold mb-2 group-hover:text-white">
+						Sistemas Emergentes
+					</h3>
+					<p class="text-sm text-neutral-400 leading-relaxed">
+						Estudio de patrones complejos a través de Autómatas
+						Celulares y algoritmos genéticos (Game of Life).
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<footer
+			class="w-full py-8 text-center text-xs text-neutral-600 border-t border-neutral-900 mt-auto font-mono"
+		>
+			<p>&copy; {new Date().getFullYear()} ESPACIO DIGITAL</p>
+		</footer>
+	</main>
+</Layout>
