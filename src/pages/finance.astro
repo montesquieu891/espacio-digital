@@ -1,0 +1,57 @@
+---
+import Layout from "../core/Layout.astro";
+import fs from "node:fs";
+import path from "node:path";
+
+// Lógica de carga de datos
+let portfolio = [];
+let lastUpdate = "Desconocido";
+
+try {
+    const dataPath = path.join(process.cwd(), "public", "market_data.json");
+    const fileContent = fs.readFileSync(dataPath, "utf-8");
+    portfolio = JSON.parse(fileContent);
+    if (portfolio.length > 0) lastUpdate = portfolio[0].updated_at;
+} catch (error) {
+    portfolio = [{ symbol: "NO_DATA", price: 0, change_percent: 0 }];
+}
+---
+
+<Layout title="Monitor Financiero">
+    <main class="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] p-8">
+        <a
+            href="/"
+            class="text-xs text-neutral-500 hover:text-white mb-8 block uppercase tracking-widest"
+        >
+            ← Volver al Hub
+        </a>
+
+        <header class="mb-12 border-b border-neutral-800 pb-4">
+            <h1 class="text-3xl font-bold">ALGORITMOS DE MERCADO</h1>
+            <p class="text-neutral-500 text-sm">
+                Python Data Pipeline activo. Última sinc: {lastUpdate}
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {
+                portfolio.map((asset) => (
+                    <div class="border border-neutral-800 p-6 bg-neutral-900/20">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold">{asset.symbol}</h3>
+                            <span
+                                class={`text-xs px-2 py-1 ${asset.change_percent >= 0 ? "text-green-400 bg-green-900/30" : "text-red-400 bg-red-900/30"}`}
+                            >
+                                {asset.change_percent > 0 ? "+" : ""}
+                                {asset.change_percent}%
+                            </span>
+                        </div>
+                        <div class="text-3xl font-light tracking-tighter">
+                            ${asset.price.toLocaleString()}
+                        </div>
+                    </div>
+                ))
+            }
+        </div>
+    </main>
+</Layout>
