@@ -1,0 +1,41 @@
+name: Actualizar Mercados
+
+on:
+  workflow_dispatch:      # Botón manual
+  schedule:
+    - cron: '0 21 * * 1-5' # Lunes a Viernes a las 21:00 UTC
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Chequear código (Checkout)
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # ACÁ ESTÁ EL CAMBIO IMPORTANTE:
+      - name: Instalar Dependencias
+        run: |
+          cd data_engine
+          pip install -r requirements.txt
+
+      - name: Ejecutar Motor de Datos
+        run: |
+          cd data_engine
+          python loader.py
+
+      - name: Guardar y Subir Cambios
+        run: |
+          git config --global user.name "Market Bot"
+          git config --global user.email "bot@github.com"
+          git add public/market_data.json
+          # Solo hace commit si hubo cambios reales en los precios
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update: Precios actualizados" && git push)
