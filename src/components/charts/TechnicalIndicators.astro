@@ -1,0 +1,115 @@
+---
+interface Props {
+    dates: string[];
+    indicators: any;
+}
+const { dates, indicators } = Astro.props;
+
+// Datos RSI y MACD
+const rsiData = {
+    labels: dates,
+    datasets: [
+        {
+            label: "RSI",
+            data: indicators.rsi,
+            borderColor: "#8b5cf6", // Violeta
+            borderWidth: 1.5,
+            pointRadius: 0,
+        },
+    ],
+};
+
+const macdData = {
+    labels: dates,
+    datasets: [
+        {
+            label: "MACD",
+            data: indicators.macd,
+            borderColor: "#3b82f6",
+            borderWidth: 1.5,
+            pointRadius: 0,
+        },
+        {
+            label: "Signal",
+            data: indicators.macd_signal,
+            borderColor: "#ef4444",
+            borderWidth: 1.5,
+            pointRadius: 0,
+        },
+    ],
+};
+---
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6">
+        <h3 class="text-sm font-bold text-neutral-400 mb-4">RSI (14)</h3>
+        <div class="relative h-48"><canvas id="rsiChart"></canvas></div>
+    </div>
+    <div class="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6">
+        <h3 class="text-sm font-bold text-neutral-400 mb-4">MACD</h3>
+        <div class="relative h-48"><canvas id="macdChart"></canvas></div>
+    </div>
+</div>
+
+<script define:vars={{ rsiData, macdData }}>
+    import Chart from "chart.js/auto";
+    import annotationPlugin from "chartjs-plugin-annotation";
+    Chart.register(annotationPlugin);
+
+    // RSI
+    new Chart(document.getElementById("rsiChart"), {
+        type: "line",
+        data: rsiData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                annotation: {
+                    annotations: {
+                        line1: {
+                            type: "line",
+                            yMin: 70,
+                            yMax: 70,
+                            borderColor: "#ef4444",
+                            borderWidth: 1,
+                            borderDash: [4, 4],
+                        },
+                        line2: {
+                            type: "line",
+                            yMin: 30,
+                            yMax: 30,
+                            borderColor: "#22c55e",
+                            borderWidth: 1,
+                            borderDash: [4, 4],
+                        },
+                    },
+                },
+            },
+            scales: {
+                y: {
+                    min: 0,
+                    max: 100,
+                    position: "right",
+                    grid: { color: "#262626" },
+                },
+                x: { display: false },
+            },
+        },
+    });
+
+    // MACD
+    new Chart(document.getElementById("macdChart"), {
+        type: "line",
+        data: macdData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { position: "right", grid: { color: "#262626" } },
+                x: { display: false },
+            },
+        },
+    });
+</script>

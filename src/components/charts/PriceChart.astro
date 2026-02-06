@@ -1,0 +1,94 @@
+---
+interface Props {
+    dates: string[];
+    prices: any;
+    indicators: any;
+}
+const { dates, prices, indicators } = Astro.props;
+
+const chartData = {
+    labels: dates,
+    datasets: [
+        {
+            label: "Precio",
+            data: prices.close,
+            borderColor: "#3b82f6", // Azul brillante
+            backgroundColor: "rgba(59, 130, 246, 0.1)",
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.1,
+            fill: true,
+        },
+        {
+            label: "SMA 20",
+            data: indicators.sma_20,
+            borderColor: "#f97316", // Naranja
+            borderWidth: 1,
+            borderDash: [5, 5],
+            pointRadius: 0,
+            tension: 0.1,
+        },
+        {
+            label: "SMA 50",
+            data: indicators.sma_50,
+            borderColor: "#a855f7", // Violeta
+            borderWidth: 1,
+            borderDash: [5, 5],
+            pointRadius: 0,
+            tension: 0.1,
+        },
+    ],
+};
+---
+
+<div
+    class="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6 mb-6 shadow-xl"
+>
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-neutral-200">
+            📈 Evolución de Precio
+        </h3>
+        <div class="flex gap-2">
+            <span
+                class="px-2 py-1 text-xs rounded bg-blue-600 text-white font-bold"
+                >1Y</span
+            >
+        </div>
+    </div>
+    <div class="relative h-80 w-full">
+        <canvas id="priceChart"></canvas>
+    </div>
+</div>
+
+<script define:vars={{ chartData }}>
+    import Chart from "chart.js/auto";
+
+    // Configuración Global Oscura
+    Chart.defaults.color = "#737373";
+    Chart.defaults.borderColor = "#262626";
+
+    const ctx = document.getElementById("priceChart");
+    new Chart(ctx, {
+        type: "line",
+        data: chartData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: "#171717",
+                    titleColor: "#fff",
+                    bodyColor: "#d4d4d4",
+                    borderColor: "#404040",
+                    borderWidth: 1,
+                },
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { position: "right", grid: { color: "#262626" } },
+            },
+        },
+    });
+</script>

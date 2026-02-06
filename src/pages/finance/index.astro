@@ -1,0 +1,145 @@
+---
+import Layout from "../../core/Layout.astro";
+// Importamos el JSON. Asegúrate de que la ruta relativa sea correcta según tu estructura
+import marketData from "../../../public/market_data.json";
+
+// CORRECCIÓN: Detectamos si el JSON tiene la estructura nueva (.assets) o la vieja
+const portfolio = marketData.assets || marketData;
+
+// Obtener sectores únicos para el filtro
+const sectors = [...new Set(portfolio.map(asset => asset.sector).filter(Boolean))].sort();
+
+// Función para generar los puntos del SVG (Sparkline)
+function getSparklinePoints(prices) {
+    if (!prices || prices.length < 2) return "";
+    // Usamos los últimos 30 días para mantenerlo simple visualmente
+    const data = prices.slice(-30);
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
+    const width = 100;
+    const height = 30;
+
+    return data.map((price, i) => {
+        const x = (i / (data.length - 1)) * width;
+        const y = height - ((price - min) / range) * height;
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(" ");
+}
+---
+
+<Layout title="Mercado Financiero">
+    <main class="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] p-8 flex flex-col items-center">
+        <div class="w-full max-w-6xl">
+            <header class="mb-8 border-b border-neutral-800 pb-4 flex justify-between items-end">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">Mercado</h1>
+                    <p class="text-neutral-500 text-sm mt-1">
+                        Última actualización: {marketData.meta?.last_update ? new Date(marketData.meta.last_update).toLocaleString() : 'N/A'}
+                    </p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-mono text-neutral-600 block">ACTIVOS RASTREADOS</span>
+                    <span class="text-xl font-bold">{portfolio.length}</span>
+                </div>
+            </header>
+            
+            <!-- Controles de búsqueda y filtro -->
+            <div class="flex flex-col md:flex-row gap-4 mb-8">
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    placeholder="Buscar por símbolo o nombre..." 
+                    class="bg-neutral-900 border border-neutral-800 text-white px-4 py-2 rounded flex-grow focus:outline-none focus:border-neutral-600 placeholder-neutral-600"
+                />
+                <select 
+                    id="sector-filter" 
+                    class="bg-neutral-900 border border-neutral-800 text-white px-4 py-2 rounded focus:outline-none focus:border-neutral-600 cursor-pointer"
+                >
+                    <option value="">Todos los sectores</option>
+                    {sectors.map(sector => <option value={sector}>{sector}</option>)}
+                </select>
+            </div>
+            
+            <div id="assets-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {portfolio.map((asset) => {
+                    const sparklinePoints = getSparklinePoints(asset.historical?.prices?.close);
+                    const trendColor = asset.change_percent >= 0 ? "#22c55e" : "#ef4444";
+                    return (
+                    <a href={`/finance/${asset.symbol}`} class="asset-card block p-6 border border-neutral-800 bg-neutral-900/50 hover:border-neutral-600 hover:bg-neutral-800 transition-all rounded-lg group relative overflow-hidden" data-symbol={asset.symbol.toLowerCase()} data-name={asset.name.toLowerCase()} data-sector={asset.sector}>
+                        <!-- Indicador visual de tendencia (borde superior) -->
+                        <div class={`absolute top-0 left-0 w-full h-1 ${asset.change_percent >= 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors">{asset.symbol}</h2>
+                                <p class="text-xs text-neutral-400 uppercase tracking-wider">{asset.name}</p>
+                            </div>
+                            <div class={`text-right font-mono ${asset.change_percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                <div class="text-xl font-bold">${asset.price.toLocaleString()}</div>
+                                <div class="text-sm flex items-center justify-end gap-1">
+                                    {asset.change_percent > 0 ? '▲' : '▼'} {Math.abs(asset.change_percent)}%
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gráfico Sparkline -->
+                        <div class="h-10 mb-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <svg width="100%" height="100%" viewBox="0 0 100 30" preserveAspectRatio="none">
+                                <polyline fill="none" stroke={trendColor} stroke-width="2" points={sparklinePoints} vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        
+                        <div class="text-[10px] text-neutral-500 uppercase tracking-wider mt-4 pt-4 border-t border-neutral-800 flex justify-between items-center">
+                            <span class="bg-neutral-800 px-2 py-1 rounded">{asset.sector}</span>
+                            <span>Vol: {(asset.metrics.volume / 1000000).toFixed(1)}M</span>
+                        </div>
+                    </a>
+                )})}
+            </div>
+            
+            <div id="no-results" class="hidden text-center text-neutral-500 py-12">
+                No se encontraron activos que coincidan con tu búsqueda.
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const sectorFilter = document.getElementById('sector-filter');
+        const cards = document.querySelectorAll('.asset-card');
+        const noResults = document.getElementById('no-results');
+
+        function filterAssets() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedSector = sectorFilter.value;
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                // @ts-ignore
+                const symbol = card.dataset.symbol;
+                // @ts-ignore
+                const name = card.dataset.name;
+                // @ts-ignore
+                const sector = card.dataset.sector;
+
+                const matchesSearch = symbol.includes(searchTerm) || name.includes(searchTerm);
+                const matchesSector = selectedSector === "" || sector === selectedSector;
+
+                if (matchesSearch && matchesSector) {
+                    // @ts-ignore
+                    card.style.display = ''; // Restaura el valor por defecto (block)
+                    visibleCount++;
+                } else {
+                    // @ts-ignore
+                    card.style.display = 'none';
+                }
+            });
+
+            noResults.classList.toggle('hidden', visibleCount > 0);
+        }
+
+        searchInput.addEventListener('input', filterAssets);
+        sectorFilter.addEventListener('change', filterAssets);
+    </script>
+</Layout>

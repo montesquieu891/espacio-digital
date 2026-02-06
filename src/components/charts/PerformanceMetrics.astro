@@ -1,0 +1,52 @@
+---
+interface Props {
+    performance: any;
+}
+const { performance } = Astro.props;
+
+const metrics = [
+    { label: "1D", value: performance.returns["1D"] },
+    { label: "1M", value: performance.returns["1M"] },
+    { label: "6M", value: performance.returns["6M"] },
+    { label: "1Y", value: performance.returns["1Y"] },
+];
+
+const getColor = (v) =>
+    v > 0 ? "text-green-400" : v < 0 ? "text-red-400" : "text-neutral-400";
+const getBg = (v) =>
+    v > 0
+        ? "bg-green-900/20 border-green-900/50"
+        : v < 0
+          ? "bg-red-900/20 border-red-900/50"
+          : "bg-neutral-800";
+---
+
+<div class="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6 mb-6">
+    <h3
+        class="text-sm font-bold text-neutral-400 uppercase tracking-widest mb-4"
+    >
+        Performance
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {
+            metrics.map((m) => (
+                <div class={`p-4 rounded border ${getBg(m.value)} text-center`}>
+                    <p class="text-xs text-neutral-500 mb-1">{m.label}</p>
+                    <p
+                        class={`text-xl font-bold font-mono ${getColor(m.value)}`}
+                    >
+                        {m.value ? `${m.value}%` : "-"}
+                    </p>
+                </div>
+            ))
+        }
+    </div>
+    <div
+        class="mt-6 pt-4 border-t border-neutral-800 flex justify-between text-xs font-mono text-neutral-500"
+    >
+        <span>Volatilidad: {performance.volatility}%</span>
+        <span
+            >Rango 52sem: ${performance.low_52w} - ${performance.high_52w}</span
+        >
+    </div>
+</div>

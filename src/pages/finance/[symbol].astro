@@ -1,0 +1,129 @@
+---
+import Layout from "../../core/Layout.astro";
+import fs from "node:fs";
+import path from "node:path";
+
+export async function getStaticPaths() {
+    // Leemos el archivo JSON desde la carpeta public
+    const filePath = path.join(process.cwd(), "public", "market_data.json");
+    const fileContent = fs.readFileSync(filePath, "utf-8");
+    const data = JSON.parse(fileContent);
+
+    // Generamos una ruta por cada elemento del array
+    const items = data.assets || data; // Soporte para la estructura nueva del loader
+    const lastUpdate = data.meta?.last_update; // Fecha global del JSON
+
+    return items.map((item) => ({
+        params: { symbol: item.symbol },
+        props: {
+            item: {
+                ...item,
+                updated_at:
+                    item.updated_at ||
+                    (lastUpdate
+                        ? new Date(lastUpdate).toLocaleString()
+                        : "N/A"),
+            },
+        },
+    }));
+}
+
+const { item } = Astro.props;
+---
+
+<Layout title={`Finanzas | ${item.symbol}`}>
+    <main
+        class="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] p-8 flex flex-col items-center"
+    >
+        <div class="w-full max-w-4xl">
+            <a
+                href="/finance"
+                class="text-neutral-500 hover:text-white mb-6 block text-sm uppercase tracking-widest"
+            >
+                ← Volver al mercado
+            </a>
+
+            <!-- Tarjeta Principal -->
+            <div
+                class="border border-neutral-800 p-6 bg-neutral-900/50 shadow-2xl"
+            >
+                <div
+                    class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4"
+                >
+                    <div>
+                        <h1 class="text-4xl font-bold text-white mb-1">
+                            {item.symbol}
+                        </h1>
+                        <h2 class="text-lg text-neutral-400">{item.name}</h2>
+                    </div>
+                    <div class="text-left md:text-right">
+                        <div class="text-3xl font-mono font-bold">
+                            ${item.price.toLocaleString()}
+                        </div>
+                        <div
+                            class={`text-sm font-mono font-bold ${item.change_percent >= 0 ? "text-green-500" : "text-red-500"}`}
+                        >
+                            {item.change_percent > 0 ? "+" : ""}{
+                                item.change_percent
+                            }%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Métricas -->
+                <div
+                    class="grid grid-cols-2 md:grid-cols-4 gap-4 py-6 border-y border-neutral-800 my-6 bg-neutral-900/30 p-4 rounded"
+                >
+                    <div>
+                        <span
+                            class="text-[10px] uppercase tracking-wider text-neutral-500 block mb-1"
+                            >Sector</span
+                        >
+                        <span class="font-medium">{item.sector}</span>
+                    </div>
+                    <div>
+                        <span
+                            class="text-[10px] uppercase tracking-wider text-neutral-500 block mb-1"
+                            >Market Cap</span
+                        >
+                        <span class="font-medium"
+                            >{item.metrics?.market_cap?.toLocaleString()}</span
+                        >
+                    </div>
+                    <div>
+                        <span
+                            class="text-[10px] uppercase tracking-wider text-neutral-500 block mb-1"
+                            >P/E Ratio</span
+                        >
+                        <span class="font-medium"
+                            >{item.metrics?.pe_ratio || "N/A"}</span
+                        >
+                    </div>
+                    <div>
+                        <span
+                            class="text-[10px] uppercase tracking-wider text-neutral-500 block mb-1"
+                            >Actualizado</span
+                        >
+                        <span class="font-medium text-neutral-400"
+                            >{item.updated_at}</span
+                        >
+                    </div>
+                </div>
+
+                <!-- Descripción -->
+                <div>
+                    <h3
+                        class="text-sm font-bold text-neutral-300 mb-2 uppercase tracking-wider"
+                    >
+                        Perfil de la Empresa
+                    </h3>
+                    <p
+                        class="text-neutral-400 leading-relaxed text-sm text-justify"
+                    >
+                        {item.description}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+</Layout>
