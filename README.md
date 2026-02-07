@@ -1,35 +1,27 @@
-Link:https://espacio-digital.vercel.app/
+https://espacio-digital.vercel.app/
 
 
-## 🚀 Project Structure
+# [Tu Nombre] | Laboratorio de Datos (En Proceso)
 
-Inside Astro project, you'll see the following folders and files:
+Este repositorio aloja el código fuente de mi plataforma personal: un espacio diseñado bajo principios de **arquitectura brutalista** y **eficiencia de sistemas**. Más que un portafolio, es un entorno de ejecución donde voy documentando ideas, proyectos, apuntes, etc. 
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 🛠️ Pilares del Proyecto
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+* **Arquitectura de Información:** Implementación de una interfaz minimalista  que prioriza la velocidad de carga, la legibilidad y la jerarquía de datos.
+* **Contenidos:** Aplicación de conceptos de ciencias de la computación a la resolución de problemas multidisciplinarios, research e investigacion sobre temas de interes.
 
-Any static assets, like images, can be placed in the `public/` directory.
 
-## 🧞 Commands
+* **Lenguajes & Frameworks:** [Ej: Python, SQL, React, HTML5/CSS3]
+* **Áreas de Foco:** Data Science, Algoritmos y Modelado de Procesos de Negocio.
 
-All commands are run from the root of the project, from a terminal:
+## 📈 Visión Profesional
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+Como desarrollador en formación constante, mi objetivo es integrar la técnica con la visión estratégica. Este "taller" demuestra mi capacidad para:
+1.  **Autogestión de Proyectos:** Liderar el ciclo de vida completo de una plataforma digital.
+2.  **Abstracción de Problemas:** Traducir conceptos teóricos complejos en implementaciones de código manejables.
+3.  **Comunicación Técnica:** Explicar el "porqué" detrás de cada decisión de arquitectura.
 
+---
+**Contacto & Colaboración:**
+[(https://www.linkedin.com/in/fernándezjuan/)] | [fernandezjuanandres67@gmail.com] 
