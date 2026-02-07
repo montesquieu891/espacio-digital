@@ -1,7 +1,7 @@
 https://espacio-digital.vercel.app/
 
 
-# [Tu Nombre] | Laboratorio de Datos (En Proceso)
+#| Laboratorio de Datos (En Proceso)
 
 Este repositorio aloja el código fuente de mi plataforma personal: un espacio diseñado bajo principios de **arquitectura brutalista** y **eficiencia de sistemas**. Más que un portafolio, es un entorno de ejecución donde voy documentando ideas, proyectos, apuntes, etc. 
 
