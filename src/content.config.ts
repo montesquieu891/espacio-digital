@@ -1,0 +1,32 @@
+// Colecciones de contenido de Astro.
+// Cada archivo .md dentro de src/content/publicaciones/ es una publicación.
+// El nombre del archivo define la dirección: mi-analisis.md -> /publicaciones/mi-analisis
+// Los archivos que empiezan con "_" (como _plantilla.md) se ignoran.
+import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
+
+// Para agregar o renombrar una categoría, editá esta lista.
+export const CATEGORIAS = ["finanzas", "programacion", "ciencia", "notas"] as const;
+
+const publicaciones = defineCollection({
+  loader: glob({
+    base: "./src/content/publicaciones",
+    pattern: ["**/*.md", "!**/_*.md"],
+  }),
+  schema: z.object({
+    titulo: z.string().min(1, "Falta el título"),
+    fecha: z.coerce.date(),
+    categoria: z.enum(CATEGORIAS, {
+      errorMap: () => ({
+        message: `La categoría debe ser una de: ${CATEGORIAS.join(", ")}`,
+      }),
+    }),
+    resumen: z.string().min(1, "Falta el resumen"),
+    // Para compartir algo externo (un artículo, un paper, un video...)
+    link: z.string().url("El link debe ser una dirección completa (https://...)").optional(),
+    // borrador: true -> no se publica (solo se ve con `npm run dev`)
+    borrador: z.boolean().default(false),
+  }),
+});
+
+export const collections = { publicaciones };

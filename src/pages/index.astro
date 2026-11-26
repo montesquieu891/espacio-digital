@@ -1,5 +1,12 @@
 ---
 import Layout from "../core/Layout.astro";
+import TarjetaPublicacion from "../components/TarjetaPublicacion.astro";
+import { getPublicaciones } from "../core/publicaciones";
+
+// Las 6 publicaciones más recientes; el resto queda en /publicaciones
+const ULTIMAS = 6;
+const publicaciones = await getPublicaciones();
+const ultimas = publicaciones.slice(0, ULTIMAS);
 ---
 
 <Layout title="Juan Andres Fernandez | Espacio Digital">
@@ -149,6 +156,30 @@ import Layout from "../core/Layout.astro";
 					</div>
 				</a>
 			</div>
+
+			{
+				ultimas.length > 0 && (
+					<>
+						<div class="flex items-baseline justify-between mt-16 mb-8 border-b border-neutral-800 pb-2">
+							<h2 class="text-sm font-bold uppercase tracking-widest text-neutral-300">
+								Últimas publicaciones
+							</h2>
+							<a
+								href="/publicaciones"
+								class="text-xs text-neutral-500 hover:text-white font-mono transition-colors"
+							>
+								Ver todas ({publicaciones.length}) →
+							</a>
+						</div>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							{ultimas.map((p) => (
+								<TarjetaPublicacion publicacion={p} />
+							))}
+						</div>
+					</>
+				)
+			}
+
 			<footer
 				class="w-full py-8 text-center text-xs text-neutral-700 border-t border-neutral-900 mt-12 font-mono"
 			>

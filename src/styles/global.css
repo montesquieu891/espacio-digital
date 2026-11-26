@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* Estilos de lectura para las publicaciones en Markdown (clase "prose") */
+@plugin "@tailwindcss/typography";

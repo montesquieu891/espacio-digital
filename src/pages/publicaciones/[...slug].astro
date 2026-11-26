@@ -1,0 +1,114 @@
+---
+// Página de cada publicación: una por cada archivo .md de src/content/publicaciones/
+import Layout from "../../core/Layout.astro";
+import { render } from "astro:content";
+import { getPublicaciones, formatearFecha, NOMBRE_CATEGORIA } from "../../core/publicaciones";
+
+export async function getStaticPaths() {
+	const publicaciones = await getPublicaciones();
+	return publicaciones.map((publicacion) => ({
+		params: { slug: publicacion.id },
+		props: { publicacion },
+	}));
+}
+
+const { publicacion } = Astro.props;
+const { titulo, fecha, categoria, resumen, link, borrador } = publicacion.data;
+const { Content } = await render(publicacion);
+---
+
+<Layout title={`${titulo} | Espacio Digital`}>
+	<main class="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] p-8 flex flex-col items-center">
+		<article class="w-full max-w-3xl">
+			<header class="mb-10 border-b border-neutral-800 pb-6">
+				<a
+					href="/publicaciones"
+					class="text-xs text-neutral-500 hover:text-white mb-6 block uppercase tracking-widest"
+				>
+					← Todas las publicaciones
+				</a>
+
+				{
+					borrador && (
+						<p class="mb-4 text-xs font-mono text-amber-400 border border-amber-400/40 px-3 py-2">
+							BORRADOR · solo visible en tu computadora; no se publica.
+						</p>
+					)
+				}
+
+				<p class="text-xs font-mono text-neutral-500 uppercase tracking-widest mb-3">
+					{NOMBRE_CATEGORIA[categoria]} ·
+					<time datetime={fecha.toISOString().slice(0, 10)}>{formatearFecha(fecha)}</time>
+				</p>
+				<h1 class="text-3xl md:text-5xl font-bold tracking-tight text-white mb-4">{titulo}</h1>
+				<p class="text-neutral-400 text-lg font-light">{resumen}</p>
+
+				{
+					link && (
+						<a
+							href={link}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-block mt-6 text-sm border border-neutral-700 px-4 py-2 hover:bg-white hover:text-black transition-colors"
+						>
+							Ver enlace ↗
+							<span class="ml-2 text-neutral-500 text-xs">{new URL(link).hostname}</span>
+						</a>
+					)
+				}
+			</header>
+
+			<div class="prose prose-invert prose-neutral max-w-none contenido">
+				<Content />
+			</div>
+		</article>
+	</main>
+</Layout>
+
+<style>
+	/* Ajustes de lectura sobre el estilo "prose" para que combine con el sitio */
+	.contenido :global(h2) {
+		border-bottom: 1px solid var(--color-neutral-800);
+		padding-bottom: 0.3em;
+	}
+	.contenido :global(a) {
+		text-underline-offset: 3px;
+	}
+	/* Tablas anchas: desplazamiento horizontal en el celular en vez de romper el diseño */
+	.contenido :global(table) {
+		display: block;
+		overflow-x: auto;
+		font-variant-numeric: tabular-nums;
+	}
+	.contenido :global(th),
+	.contenido :global(td) {
+		white-space: nowrap;
+	}
+	/* Respetar la alineación de columnas del Markdown (|---:| derecha, |:---:| centro) */
+	.contenido :global(th[align="right"]),
+	.contenido :global(td[align="right"]) {
+		text-align: right;
+	}
+	.contenido :global(th[align="center"]),
+	.contenido :global(td[align="center"]) {
+		text-align: center;
+	}
+	/* Bloques de código: borde sutil como las tarjetas */
+	.contenido :global(pre) {
+		border: 1px solid var(--color-neutral-800);
+		border-radius: 0;
+	}
+	/* Código en línea sin las comillas que agrega "prose" */
+	.contenido :global(:not(pre) > code) {
+		background: var(--color-neutral-900);
+		padding: 0.15em 0.4em;
+		font-weight: 400;
+	}
+	.contenido :global(:not(pre) > code)::before,
+	.contenido :global(:not(pre) > code)::after {
+		content: none;
+	}
+	.contenido :global(img) {
+		border: 1px solid var(--color-neutral-800);
+	}
+</style>

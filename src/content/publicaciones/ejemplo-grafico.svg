@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+  <rect width="800" height="300" fill="#0a0a0a"/>
+  <g stroke="#262626" stroke-width="1">
+    <line x1="40" y1="60" x2="780" y2="60"/>
+    <line x1="40" y1="130" x2="780" y2="130"/>
+    <line x1="40" y1="200" x2="780" y2="200"/>
+    <line x1="40" y1="270" x2="780" y2="270"/>
+  </g>
+  <polyline fill="none" stroke="#e5e5e5" stroke-width="2.5" stroke-linejoin="round"
+    points="40,230 90,215 140,222 190,190 240,198 290,170 340,176 390,150 440,160 490,128 540,138 590,110 640,118 690,92 740,100 780,78"/>
+  <text x="40" y="35" fill="#737373" font-family="monospace" font-size="14">EJEMPLO · PRECIO DE CIERRE</text>
+</svg>
