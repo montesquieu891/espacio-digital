@@ -26589,18 +26589,18 @@
         },
         "performance": {
           "returns": {
-            "1D": NaN,
-            "5D": NaN,
-            "1M": NaN,
-            "3M": NaN,
-            "6M": NaN,
+            "1D": null,
+            "5D": null,
+            "1M": null,
+            "3M": null,
+            "6M": null,
             "1Y": null
           },
           "volatility": 43.03,
           "high_52w": 8696.43,
           "low_52w": 4365.0,
-          "distance_from_high": NaN,
-          "distance_from_low": NaN,
+          "distance_from_high": null,
+          "distance_from_low": null,
           "avg_volume_30d": 2921101
         }
       }

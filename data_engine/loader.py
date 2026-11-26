@@ -1,13 +1,17 @@
 import yfinance as yf
 import pandas as pd
 import json
+import os
+import sys
+import tempfile
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 from pathlib import Path
 import numpy as np
 
 # Configuración
-PORTFOLIO = ["SPY", "MELI", "AAPL", "GOOGL", "TSLA", "BTC-USD", "GGAL.BA", "YPF.BA"]
+# Nota: el ticker de YPF en BYMA para Yahoo Finance es YPFD.BA (YPF.BA no existe).
+PORTFOLIO = ["SPY", "MELI", "AAPL", "GOOGL", "TSLA", "BTC-USD", "GGAL.BA", "YPFD.BA"]
 OUTPUT_PATH = Path(__file__).parent.parent / "public" / "market_data.json"
 TIMEZONE = ZoneInfo("America/Argentina/Buenos_Aires")
 
@@ -93,7 +97,20 @@ def fetch_historical_data(symbol, period="1y"):
         if hist.empty:
             print(f"⚠️  No hay datos para {symbol}")
             return None
-        
+
+        # Descartar días sin precio de cierre (Yahoo a veces devuelve la fila del día
+        # en curso, o feriados, con Close = NaN). Si no se descartan, el NaN se propaga
+        # a los rendimientos y a la volatilidad, y termina escrito en el JSON.
+        filas_antes = len(hist)
+        hist = hist.dropna(subset=['Close'])
+        descartadas = filas_antes - len(hist)
+        if descartadas:
+            print(f"   ↳ {symbol}: descartadas {descartadas} fila(s) sin precio de cierre")
+
+        if hist.empty:
+            print(f"⚠️  {symbol}: ninguna fila tiene precio de cierre")
+            return None
+
         # Calcular indicadores técnicos
         hist = calculate_technical_indicators(hist)
         
@@ -190,29 +207,91 @@ def fetch_current_data(symbol):
         print(f"❌ Error obteniendo datos de {symbol}: {e}")
         return None
 
+def is_json_safe(obj):
+    """True si el objeto se puede escribir como JSON válido (sin NaN ni Infinity)."""
+    try:
+        json.dumps(obj, allow_nan=False)
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
+def load_previous_assets(path):
+    """Lee el JSON publicado anteriormente y devuelve {símbolo: datos}.
+    Solo se aceptan activos válidos, para no arrastrar datos rotos."""
+    try:
+        with open(path, encoding='utf-8') as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    return {
+        a["symbol"]: a
+        for a in data.get("assets", [])
+        if isinstance(a, dict) and "symbol" in a and is_json_safe(a)
+    }
+
+
+def warn(message):
+    """Imprime un aviso; en GitHub Actions aparece resaltado en el resumen."""
+    prefix = "::warning::" if os.environ.get("GITHUB_ACTIONS") else "⚠️  "
+    print(f"{prefix}{message}")
+
+
+def save_json_atomically(data, path):
+    """Escribe el JSON en un archivo temporal y, solo si salió bien, reemplaza
+    al anterior. Si algo falla, el archivo publicado queda intacto."""
+    path.parent.mkdir(exist_ok=True)
+    fd, tmp_path = tempfile.mkstemp(dir=path.parent, prefix=".tmp_", suffix=".json")
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            # allow_nan=False: si se colara un NaN, falla acá en vez de publicar JSON inválido
+            json.dump(data, f, indent=2, ensure_ascii=False, allow_nan=False)
+        os.replace(tmp_path, path)
+    except BaseException:
+        os.unlink(tmp_path)
+        raise
+
+
 def main():
     """Función principal"""
     print("🚀 Iniciando actualización de datos de mercado...")
-    
+
+    previous = load_previous_assets(OUTPUT_PATH)
     assets = []
-    
+    reused = []
+
     for symbol in PORTFOLIO:
         print(f"📊 Procesando {symbol}...")
-        
-        # Datos actuales
+
+        asset_data = None
         current_data = fetch_current_data(symbol)
-        if not current_data:
-            continue
-        
-        # Datos históricos
-        historical_data = fetch_historical_data(symbol, period="1y")
-        if not historical_data:
-            continue
-        
-        # Combinar
-        asset_data = {**current_data, "historical": historical_data}
+        historical_data = fetch_historical_data(symbol, period="1y") if current_data else None
+
+        if current_data and historical_data:
+            candidate = {**current_data, "historical": historical_data}
+            if is_json_safe(candidate):
+                asset_data = candidate
+            else:
+                warn(f"{symbol}: los datos nuevos contienen valores inválidos (NaN/Infinity)")
+
+        if asset_data is None:
+            if symbol in previous:
+                warn(f"{symbol}: se conserva el dato anterior ({previous[symbol].get('updated_at', '?')})")
+                asset_data = previous[symbol]
+                reused.append(symbol)
+            else:
+                warn(f"{symbol}: sin datos nuevos ni anteriores; se omite")
+                continue
+
         assets.append(asset_data)
-    
+
+    nuevos = len(assets) - len(reused)
+    if nuevos == 0:
+        # Si no llegó ni un dato nuevo (p. ej. Yahoo caído), no se reescribe el archivo:
+        # se evita ponerle fecha de hoy a datos viejos y el workflow queda marcado en rojo.
+        print("❌ No se obtuvo ningún dato nuevo. No se modifica el archivo.")
+        sys.exit(1)
+
     # Metadata
     output = {
         "meta": {
@@ -222,13 +301,10 @@ def main():
         },
         "assets": assets
     }
-    
-    # Guardar JSON
-    OUTPUT_PATH.parent.mkdir(exist_ok=True)
-    with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
-        json.dump(output, f, indent=2, ensure_ascii=False)
-    
-    print(f"✅ Datos actualizados: {len(assets)} activos procesados")
+
+    save_json_atomically(output, OUTPUT_PATH)
+
+    print(f"✅ Datos actualizados: {nuevos} activos nuevos, {len(reused)} conservados del día anterior")
     print(f"📁 Archivo guardado en: {OUTPUT_PATH}")
 
 if __name__ == "__main__":

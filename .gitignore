@@ -22,3 +22,8 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Archivos locales que no deben subirse al repo público
+project_context.txt
+context_gen.py
+.claude/
