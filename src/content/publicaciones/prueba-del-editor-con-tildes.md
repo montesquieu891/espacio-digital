@@ -5,4 +5,16 @@ categoria: notas
 resumen: lorem
 borrador: true
 ---
-un párrafo, una tabla chica y un bloque de código, si el editor tiene botones para eso
+un párrafo
+
+
+| a | b | c |
+| --- | --- | --- |
+| 1 |  |  |
+| 2 |  |  |
+
+
+```
+hello world
+```
+
