@@ -72,6 +72,32 @@ git pull
    git push
    ```
 
+## Opción C: con el editor visual (Pages CMS)
+
+Un formulario en el navegador: no hace falta escribir el encabezado a mano.
+
+**La primera vez:**
+
+1. Entrá a <https://app.pagescms.org> y tocá **Sign in with GitHub**.
+2. Instalá la app de Pages CMS **solo en el repositorio `espacio-digital`**
+   (elegí *Only select repositories*).
+3. Abrí el repositorio en Pages CMS. Vas a ver **Publicaciones** en el menú.
+
+**Para publicar:**
+
+1. **Publicaciones → Add an entry** (agregar).
+2. Completá título, fecha, categoría, resumen y el texto. El nombre del archivo
+   se arma con el título: revisá que quede en minúsculas, sin espacios ni tildes.
+3. Para imágenes, usá el botón de imagen del editor: se guardan en `public/imagenes/`.
+4. **Save** (guardar).
+
+> **Guardar = publicar.** Cada vez que guardás, el cambio va directo a GitHub y en
+> un minuto está en la web. Si todavía no está listo, activá **Borrador** antes
+> de guardar.
+
+La configuración del formulario está en [`.pages.yml`](.pages.yml). Si agregás una
+categoría en `src/content.config.ts`, agregala también ahí.
+
 ---
 
 ## Si algo sale mal
@@ -83,5 +109,6 @@ git pull
   **Details**. El mensaje dice qué archivo y qué campo revisar. En tu computadora,
   `npm run dev` muestra el mismo error.
 - Para agregar o renombrar categorías, editá la lista `CATEGORIAS` en
-  [`src/content.config.ts`](src/content.config.ts) y los nombres visibles en
-  [`src/core/publicaciones.ts`](src/core/publicaciones.ts).
+  [`src/content.config.ts`](src/content.config.ts), los nombres visibles en
+  [`src/core/publicaciones.ts`](src/core/publicaciones.ts) y la lista de
+  [`.pages.yml`](.pages.yml).

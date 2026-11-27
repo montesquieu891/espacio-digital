@@ -1,0 +1,66 @@
+# Configuración de Pages CMS (https://app.pagescms.org): editor visual para publicar.
+# Define el formulario que se ve en el editor. Debe coincidir con src/content.config.ts.
+# Documentación: https://pagescms.org/docs/configuration/
+
+# Imágenes subidas desde el editor: se guardan en public/imagenes/
+# y en el texto quedan como /imagenes/nombre.png
+media:
+  input: public/imagenes
+  output: /imagenes
+  extensions: [png, jpg, jpeg, gif, webp, svg]
+
+content:
+  - name: publicaciones
+    label: Publicaciones
+    type: collection
+    path: src/content/publicaciones
+    format: yaml-frontmatter
+    # Archivos de la carpeta que no son publicaciones
+    exclude: ["_plantilla.md", "ejemplo-grafico.svg"]
+    # El nombre del archivo es la dirección de la página: se arma con el título
+    # y se puede corregir al crear la publicación (minúsculas, sin espacios ni tildes).
+    filename:
+      template: "{fields.titulo}.md"
+      field: create
+    view:
+      primary: titulo
+    fields:
+      - name: titulo
+        label: Título
+        type: string
+        required: true
+      - name: fecha
+        label: Fecha
+        type: date
+        required: true
+        options:
+          format: "yyyy-MM-dd"
+      - name: categoria
+        label: Categoría
+        type: select
+        required: true
+        options:
+          values:
+            - { name: finanzas, label: Finanzas }
+            - { name: programacion, label: Programación }
+            - { name: ciencia, label: Ciencia }
+            - { name: notas, label: Notas }
+      - name: resumen
+        label: Resumen
+        description: Una o dos frases para la tarjeta de la portada.
+        type: text
+        required: true
+      - name: link
+        label: Enlace externo (opcional)
+        description: Si compartís algo de otro sitio, pegá la dirección completa (https://...).
+        type: string
+      - name: borrador
+        label: Borrador
+        description: Activado = se guarda pero NO se publica.
+        type: boolean
+        default: false
+      - name: body
+        label: Texto
+        type: rich-text
+        options:
+          format: markdown

@@ -8,6 +8,10 @@ import { glob } from "astro/loaders";
 // Para agregar o renombrar una categoría, editá esta lista.
 export const CATEGORIAS = ["finanzas", "programacion", "ciencia", "notas"] as const;
 
+// Un campo opcional que quedó vacío (link: "" o borrador: sin valor, como lo puede
+// guardar un editor visual) se trata como si no estuviera.
+const vacioComoAusente = (v: unknown) => (v === "" || v === null ? undefined : v);
+
 const publicaciones = defineCollection({
   loader: glob({
     base: "./src/content/publicaciones",
@@ -23,9 +27,12 @@ const publicaciones = defineCollection({
     }),
     resumen: z.string().min(1, "Falta el resumen"),
     // Para compartir algo externo (un artículo, un paper, un video...)
-    link: z.string().url("El link debe ser una dirección completa (https://...)").optional(),
+    link: z.preprocess(
+      vacioComoAusente,
+      z.string().url("El link debe ser una dirección completa (https://...)").optional(),
+    ),
     // borrador: true -> no se publica (solo se ve con `npm run dev`)
-    borrador: z.boolean().default(false),
+    borrador: z.preprocess(vacioComoAusente, z.boolean().default(false)),
   }),
 });
 
