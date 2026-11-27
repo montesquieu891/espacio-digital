@@ -17,11 +17,12 @@ content:
     format: yaml-frontmatter
     # Archivos de la carpeta que no son publicaciones
     exclude: ["_plantilla.md", "ejemplo-grafico.svg"]
-    # El nombre del archivo es la dirección de la página: se arma con el título
-    # y se puede corregir al crear la publicación (minúsculas, sin espacios ni tildes).
-    filename:
-      template: "{fields.titulo}.md"
-      field: create
+    # El nombre del archivo es la dirección de la página. Pages CMS lo arma al
+    # guardar a partir del título: minúsculas, guiones y sin tildes
+    # ("Dólar vs. Merval" -> dolar-vs-merval.md).
+    # No usar `field: create`: la casilla se completa antes de escribir el título,
+    # queda ".md" y el guardado falla con 'Invalid extension ""'.
+    filename: "{fields.titulo}.md"
     view:
       primary: titulo
     fields:

@@ -87,7 +87,8 @@ Un formulario en el navegador: no hace falta escribir el encabezado a mano.
 
 1. **Publicaciones → Add an entry** (agregar).
 2. Completá título, fecha, categoría, resumen y el texto. El nombre del archivo
-   se arma con el título: revisá que quede en minúsculas, sin espacios ni tildes.
+   (y la dirección de la página) se arma solo con el título al guardar:
+   "Dólar vs. Merval" → `/publicaciones/dolar-vs-merval`.
 3. Para imágenes, usá el botón de imagen del editor: se guardan en `public/imagenes/`.
 4. **Save** (guardar).
 
